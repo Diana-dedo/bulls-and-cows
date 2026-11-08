@@ -21,7 +21,7 @@ describe('createDigitValidator', () => {
     const isHexDigit = createDigitValidator(16);
     expect(isHexDigit('9')).toBe(true);
     expect(isHexDigit('a')).toBe(true);
-    expect(isHexDigit('F')).toBe(true); // Проверяем заглавную букву
+    expect(isHexDigit('F')).toBe(true);
     expect(isHexDigit('g')).toBe(false);
   });
 });
