@@ -5,12 +5,22 @@
     "eslint": "^10.14.0",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-prettier": "^5.5.7",
+    "husky": "^9.1.7",
     "lint-staged": "^17.6.0",
     "prettier": "^3.9.10",
     "typescript": "^7.0.2",
     "vitest": "^5.1.0"
   },
   "scripts": {
-    "test": "vitest run"
+    "test": "vitest run",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.ts": [
+      "eslint --fix",
+      "prettier --write"
+    ]
   }
 }
