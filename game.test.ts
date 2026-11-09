@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { createDigitValidator } from './game';
+import { createDigitValidator, isValidGuess } from './game';
 
 describe('createDigitValidator', () => {
   it('должен валидировать двоичную систему (base 2)', () => {
@@ -23,5 +23,25 @@ describe('createDigitValidator', () => {
     expect(isHexDigit('a')).toBe(true);
     expect(isHexDigit('F')).toBe(true);
     expect(isHexDigit('g')).toBe(false);
+  });
+});
+
+describe('isValidGuess', () => {
+  it('должен правильно валидировать попытки пользователя', () => {
+    expect(isValidGuess('123', 3, 10)).toBe(true);
+    expect(isValidGuess('12', 3, 10)).toBe(false);
+    expect(isValidGuess('123', 4, 10)).toBe(false);
+  });
+
+  it('должен возвращать false, если есть недопустимые символы для base', () => {
+    expect(isValidGuess('12', 2, 10)).toBe(true);
+    expect(isValidGuess('12a', 3, 10)).toBe(false);
+    expect(isValidGuess('12', 2, 2)).toBe(false);
+  });
+
+  it('должен возвращать false, если символы повторяются', () => {
+    expect(isValidGuess('123', 3, 10)).toBe(true);
+    expect(isValidGuess('112', 3, 10)).toBe(false);
+    expect(isValidGuess('A2a', 3, 16)).toBe(false);
   });
 });
