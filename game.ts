@@ -1,5 +1,6 @@
+const alphabet = '0123456789abcdef';
+
 export function createDigitValidator(base: number): (char: string) => boolean {
-    const alphabet = '0123456789abcdef';
     const allowedSymbols = alphabet.slice(0, base);
     return (char: string) => {
         return allowedSymbols.includes(char.toLowerCase());
@@ -45,5 +46,8 @@ export function generateSecret(
     base: number,
     random: () => number = Math.random,
 ): string {
-    throw new Error('Not implemented');
+    const symbols = alphabet.slice(0, base).split('');
+    symbols.sort(() => random() - 0.5);
+    const resultSymbols = symbols.slice(0, length);
+    return resultSymbols.join('');
 }
