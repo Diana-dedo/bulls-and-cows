@@ -18,3 +18,10 @@ export function isValidGuess(
         new Set(guess.toLowerCase()).size === guess.length
     );
 }
+
+export function evaluateGuess(
+    secret: string,
+    guess: string,
+): { bulls: number; cows: number } {
+    throw new Error('Not implemented');
+}
