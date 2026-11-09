@@ -221,6 +221,15 @@ function renderGameScreen(): void {
             return;
         }
 
+        const isDuplicate = gameHistory.some(
+            (entry) => entry.guess === currentGuess,
+        );
+        if (isDuplicate) {
+            alert('Вы уже вводили этот вариант! Попробуйте другое число.');
+            guessInput.value = ''; // Просто очищаем поле, без ошибок и задвоений
+            return;
+        }
+
         const result = evaluateGuess(activeGameSecret, currentGuess);
         const newEntry: HistoryEntry = { guess: currentGuess, ...result };
 
