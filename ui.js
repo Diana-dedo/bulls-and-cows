@@ -153,7 +153,7 @@ function renderGameScreen() {
         while (historyList.firstChild) {
             historyList.removeChild(historyList.firstChild);
         }
-        gameHistory.forEach(entry => {
+        gameHistory.forEach((entry) => {
             const item = document.createElement('div');
             item.textContent = `Попытка: ${entry.guess} | Быки: ${entry.bulls}, Коровы: ${entry.cows}`;
             historyList.appendChild(item);
