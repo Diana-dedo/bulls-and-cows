@@ -39,3 +39,11 @@ export function evaluateGuess(
         { bulls: 0, cows: 0 },
     );
 }
+
+export function generateSecret(
+    length: number,
+    base: number,
+    random: () => number = Math.random,
+): string {
+    throw new Error('Not implemented');
+}

@@ -1,5 +1,10 @@
 import { describe, it, expect } from 'vitest';
-import { createDigitValidator, isValidGuess, evaluateGuess } from './game';
+import {
+    createDigitValidator,
+    isValidGuess,
+    evaluateGuess,
+    generateSecret,
+} from './game';
 
 describe('createDigitValidator', () => {
     it('должен валидировать двоичную систему (base 2)', () => {
@@ -57,5 +62,18 @@ describe('evaluateGuess', () => {
 
     it('должен корректно считать смешанные результаты и игнорировать регистр букв', () => {
         expect(evaluateGuess('aB34', 'Ab43')).toEqual({ bulls: 2, cows: 2 });
+    });
+});
+
+describe('generateSecret', () => {
+    it('должен генерировать строку правильной длины', () => {
+        const result = generateSecret(4, 10);
+        expect(result.length).toBe(4);
+    });
+
+    it('должен быть предсказуемым при передаче кастомного random', () => {
+        const fakeRandom = () => 0.1;
+        const result = generateSecret(3, 10, fakeRandom);
+        expect(typeof result).toBe('string');
     });
 });
