@@ -52,6 +52,19 @@ export function generateSecret(
     return resultSymbols.join('');
 }
 
+const cache: Record<string, number> = {};
+
 export function countPossibleSecrets(length: number, base: number): number {
-    throw new Error('Not implemented');
+    if (length === 0) return 1;
+    const key = `${length}-${base}`;
+
+    if (cache[key] !== undefined) {
+        return cache[key];
+    }
+
+    const result = base * countPossibleSecrets(length - 1, base - 1);
+
+    cache[key] = result;
+
+    return result;
 }
