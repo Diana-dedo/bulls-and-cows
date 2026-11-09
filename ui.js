@@ -165,7 +165,7 @@ function renderGameScreen() {
             alert('Неверный формат ввода! Проверьте длину и уникальность цифр.');
             return;
         }
-        const isDuplicate = gameHistory.some(entry => entry.guess === currentGuess);
+        const isDuplicate = gameHistory.some((entry) => entry.guess === currentGuess);
         if (isDuplicate) {
             alert('Вы уже вводили этот вариант! Попробуйте другое число.');
             guessInput.value = ''; // Просто очищаем поле, без ошибок и задвоений
@@ -183,9 +183,17 @@ function renderGameScreen() {
             renderSetupScreen();
         }
     });
+    const restartButton = document.createElement('button');
+    restartButton.textContent = 'Новая игра';
+    restartButton.style.marginTop = '20px';
+    restartButton.style.backgroundColor = '#6c757d';
+    restartButton.addEventListener('click', () => {
+        renderSetupScreen();
+    });
     gameContainer.appendChild(guessInput);
     gameContainer.appendChild(checkButton);
     gameContainer.appendChild(historyList);
+    gameContainer.appendChild(restartButton);
     app.appendChild(gameContainer);
 }
 renderSetupScreen();
