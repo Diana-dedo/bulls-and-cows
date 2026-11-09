@@ -68,3 +68,18 @@ export function countPossibleSecrets(length: number, base: number): number {
 
     return result;
 }
+
+export interface HistoryEntry {
+    guess: string;
+    bulls: number;
+    cows: number;
+}
+
+export interface GameState {
+    length: number;
+    base: number;
+    secret: string;
+    history: HistoryEntry[];
+    isWon: boolean;
+    startTime: number | null;
+}
