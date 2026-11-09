@@ -1,10 +1,33 @@
-import { generateSecret, evaluateGuess, isValidGuess, createDigitValidator } from './game.js';
+import { generateSecret, evaluateGuess, isValidGuess, createDigitValidator, } from './game.js';
 const currentSettings = {
     length: 4,
     base: 10,
 };
 let activeGameSecret = '';
 let gameHistory = [];
+let startTime = 0;
+function getRecords() {
+    const data = localStorage.getItem('bulls_cows_records');
+    return data ? JSON.parse(data) : [];
+}
+function saveRecord(attempts, timeInSeconds) {
+    const records = getRecords();
+    const newRecord = {
+        length: currentSettings.length,
+        base: currentSettings.base,
+        attempts: attempts,
+        time: timeInSeconds,
+        date: new Date().toLocaleDateString(),
+    };
+    const updatedRecords = [...records, newRecord]
+        .sort((a, b) => {
+        if (a.attempts !== b.attempts)
+            return a.attempts - b.attempts;
+        return a.time - b.time;
+    })
+        .slice(0, 5);
+    localStorage.setItem('bulls_cows_records', JSON.stringify(updatedRecords));
+}
 export function renderSetupScreen() {
     const app = document.body;
     while (app.firstChild) {
@@ -65,6 +88,7 @@ export function renderSetupScreen() {
     startButton.addEventListener('click', () => {
         activeGameSecret = generateSecret(currentSettings.length, currentSettings.base);
         gameHistory = [];
+        startTime = Date.now();
         console.log('Загаданное секретное число:', activeGameSecret);
         renderGameScreen();
     });
@@ -74,6 +98,30 @@ export function renderSetupScreen() {
     setupContainer.appendChild(lengthSelect);
     setupContainer.appendChild(startButton);
     app.appendChild(setupContainer);
+    renderHighScores(app);
+}
+function renderHighScores(parent) {
+    const recordsContainer = document.createElement('div');
+    recordsContainer.className = 'records-container';
+    recordsContainer.style.marginTop = '20px';
+    const subtitle = document.createElement('h3');
+    subtitle.textContent = '🏆 Таблица рекордов (ТОП-5)';
+    recordsContainer.appendChild(subtitle);
+    const records = getRecords();
+    if (records.length === 0) {
+        const noRecords = document.createElement('p');
+        noRecords.textContent = 'Рекордов пока нет. Будьте первыми!';
+        recordsContainer.appendChild(noRecords);
+    }
+    else {
+        records.forEach((rec, index) => {
+            const row = document.createElement('div');
+            row.style.padding = '5px 0';
+            row.textContent = `#${index + 1} | [Длина: ${rec.length}, База: ${rec.base}] — Попыток: ${rec.attempts}, Время: ${rec.time} сек. (${rec.date})`;
+            recordsContainer.appendChild(row);
+        });
+    }
+    parent.appendChild(recordsContainer);
 }
 function renderGameScreen() {
     const app = document.body;
@@ -104,7 +152,7 @@ function renderGameScreen() {
         while (historyList.firstChild) {
             historyList.removeChild(historyList.firstChild);
         }
-        gameHistory.forEach((entry) => {
+        gameHistory.forEach(entry => {
             const item = document.createElement('div');
             item.textContent = `Попытка: ${entry.guess} | Быки: ${entry.bulls}, Коровы: ${entry.cows}`;
             historyList.appendChild(item);
@@ -122,7 +170,9 @@ function renderGameScreen() {
         updateHistoryUI();
         guessInput.value = '';
         if (result.bulls === currentSettings.length) {
-            alert('Поздравляем! Вы победили!');
+            const timeFinished = Math.floor((Date.now() - startTime) / 1000);
+            alert(`Поздравляем! Вы победили!\nПопыток: ${gameHistory.length}\nВремя: ${timeFinished} сек.`);
+            saveRecord(gameHistory.length, timeFinished);
             renderSetupScreen();
         }
     });

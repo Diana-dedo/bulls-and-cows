@@ -13,6 +13,39 @@ const currentSettings = {
 
 let activeGameSecret = '';
 let gameHistory: HistoryEntry[] = [];
+let startTime: number = 0;
+interface RecordEntry {
+    length: number;
+    base: number;
+    attempts: number;
+    time: number;
+    date: string;
+}
+
+function getRecords(): RecordEntry[] {
+    const data = localStorage.getItem('bulls_cows_records');
+    return data ? JSON.parse(data) : [];
+}
+
+function saveRecord(attempts: number, timeInSeconds: number): void {
+    const records = getRecords();
+    const newRecord: RecordEntry = {
+        length: currentSettings.length,
+        base: currentSettings.base,
+        attempts: attempts,
+        time: timeInSeconds,
+        date: new Date().toLocaleDateString(),
+    };
+
+    const updatedRecords = [...records, newRecord]
+        .sort((a, b) => {
+            if (a.attempts !== b.attempts) return a.attempts - b.attempts;
+            return a.time - b.time;
+        })
+        .slice(0, 5);
+
+    localStorage.setItem('bulls_cows_records', JSON.stringify(updatedRecords));
+}
 
 export function renderSetupScreen(): void {
     const app = document.body;
@@ -85,6 +118,7 @@ export function renderSetupScreen(): void {
             currentSettings.base,
         );
         gameHistory = [];
+        startTime = Date.now();
         console.log('Загаданное секретное число:', activeGameSecret);
         renderGameScreen();
     });
@@ -95,6 +129,35 @@ export function renderSetupScreen(): void {
     setupContainer.appendChild(lengthSelect);
     setupContainer.appendChild(startButton);
     app.appendChild(setupContainer);
+
+    renderHighScores(app);
+}
+
+function renderHighScores(parent: HTMLElement): void {
+    const recordsContainer = document.createElement('div');
+    recordsContainer.className = 'records-container';
+    recordsContainer.style.marginTop = '20px';
+
+    const subtitle = document.createElement('h3');
+    subtitle.textContent = '🏆 Таблица рекордов (ТОП-5)';
+    recordsContainer.appendChild(subtitle);
+
+    const records = getRecords();
+
+    if (records.length === 0) {
+        const noRecords = document.createElement('p');
+        noRecords.textContent = 'Рекордов пока нет. Будьте первыми!';
+        recordsContainer.appendChild(noRecords);
+    } else {
+        records.forEach((rec, index) => {
+            const row = document.createElement('div');
+            row.style.padding = '5px 0';
+            row.textContent = `#${index + 1} | [Длина: ${rec.length}, База: ${rec.base}] — Попыток: ${rec.attempts}, Время: ${rec.time} сек. (${rec.date})`;
+            recordsContainer.appendChild(row);
+        });
+    }
+
+    parent.appendChild(recordsContainer);
 }
 
 function renderGameScreen(): void {
@@ -165,7 +228,12 @@ function renderGameScreen(): void {
         guessInput.value = '';
 
         if (result.bulls === currentSettings.length) {
-            alert('Поздравляем! Вы победили!');
+            const timeFinished = Math.floor((Date.now() - startTime) / 1000);
+            alert(
+                `Поздравляем! Вы победили!\nПопыток: ${gameHistory.length}\nВремя: ${timeFinished} сек.`,
+            );
+
+            saveRecord(gameHistory.length, timeFinished);
             renderSetupScreen();
         }
     });
