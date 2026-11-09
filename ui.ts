@@ -7,7 +7,10 @@ const currentSettings = {
 
 export function renderSetupScreen(): void {
     const app = document.body;
-    app.innerHTML = '';
+
+    while (app.firstChild) {
+        app.removeChild(app.firstChild);
+    }
 
     const title = document.createElement('h1');
     title.textContent = 'Игра: Быки и Коровы';
@@ -18,7 +21,6 @@ export function renderSetupScreen(): void {
 
     const baseLabel = document.createElement('label');
     baseLabel.textContent = 'Система счисления: ';
-
     const baseSelect = document.createElement('select');
 
     const systems = [
@@ -32,13 +34,50 @@ export function renderSetupScreen(): void {
         const option = document.createElement('option');
         option.value = sys.value;
         option.textContent = sys.text;
-        if (Number(sys.value) === currentSettings.base) {
-            option.selected = true;
-        }
+        if (Number(sys.value) === currentSettings.base) option.selected = true;
         baseSelect.appendChild(option);
     });
 
+    const lengthLabel = document.createElement('label');
+    lengthLabel.textContent = ' Длина числа: ';
+    const lengthSelect = document.createElement('select');
+
+    function updateLengthOptions(selectedBase: number) {
+        lengthSelect.innerHTML = '';
+        for (let i = 2; i <= 6; i++) {
+            if (selectedBase === 2 && i !== 2) continue;
+
+            const option = document.createElement('option');
+            option.value = String(i);
+            option.textContent = String(i);
+            if (i === currentSettings.length) option.selected = true;
+            lengthSelect.appendChild(option);
+        }
+    }
+
+    updateLengthOptions(currentSettings.base);
+
+    baseSelect.addEventListener('change', () => {
+        currentSettings.base = Number(baseSelect.value);
+        if (currentSettings.base === 2) {
+            currentSettings.length = 2;
+        }
+        updateLengthOptions(currentSettings.base);
+    });
+
+    lengthSelect.addEventListener('change', () => {
+        currentSettings.length = Number(lengthSelect.value);
+    });
+
+    const startButton = document.createElement('button');
+    startButton.textContent = 'Старт игры';
+
     setupContainer.appendChild(baseLabel);
     setupContainer.appendChild(baseSelect);
+    setupContainer.appendChild(lengthLabel);
+    setupContainer.appendChild(lengthSelect);
+    setupContainer.appendChild(startButton);
     app.appendChild(setupContainer);
 }
+
+renderSetupScreen();
