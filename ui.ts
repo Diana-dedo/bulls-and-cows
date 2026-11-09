@@ -1,4 +1,11 @@
-import { GameState, HistoryEntry } from './game.js';
+import {
+    GameState,
+    HistoryEntry,
+    generateSecret,
+    evaluateGuess,
+    isValidGuess,
+    createDigitValidator,
+} from './game.js';
 
 const currentSettings = {
     length: 4,
@@ -43,7 +50,9 @@ export function renderSetupScreen(): void {
     const lengthSelect = document.createElement('select');
 
     function updateLengthOptions(selectedBase: number) {
-        lengthSelect.innerHTML = '';
+        while (lengthSelect.firstChild) {
+            lengthSelect.removeChild(lengthSelect.firstChild);
+        }
         for (let i = 2; i <= 6; i++) {
             if (selectedBase === 2 && i !== 2) continue;
 
@@ -72,12 +81,31 @@ export function renderSetupScreen(): void {
     const startButton = document.createElement('button');
     startButton.textContent = 'Старт игры';
 
+    startButton.addEventListener('click', () => {
+        activeGameSecret = generateSecret(
+            currentSettings.length,
+            currentSettings.base,
+        );
+        console.log('Загаданное секретное число:', activeGameSecret);
+        renderGameScreen();
+    });
+
     setupContainer.appendChild(baseLabel);
     setupContainer.appendChild(baseSelect);
     setupContainer.appendChild(lengthLabel);
     setupContainer.appendChild(lengthSelect);
     setupContainer.appendChild(startButton);
     app.appendChild(setupContainer);
+}
+
+function renderGameScreen(): void {
+    const app = document.body;
+    while (app.firstChild) {
+        app.removeChild(app.firstChild);
+    }
+    const title = document.createElement('h2');
+    title.textContent = `Игра началась! База: ${currentSettings.base}, Длина: ${currentSettings.length}`;
+    app.appendChild(title);
 }
 
 renderSetupScreen();
