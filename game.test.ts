@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { createDigitValidator, isValidGuess, evaluteGuess } from './game';
+import { createDigitValidator, isValidGuess, evaluateGuess } from './game';
 
 describe('createDigitValidator', () => {
     it('должен валидировать двоичную систему (base 2)', () => {
@@ -46,16 +46,16 @@ describe('isValidGuess', () => {
     });
 });
 
-describe('evaluteGuess', () => {
+describe('evaluateGuess', () => {
     it('должен вернуть все быки при полном совпадении чисел', () => {
-        expect(evaluteGuess('1234', '1234')).toEqual({ bulls: 4, cows: 0 });
+        expect(evaluateGuess('1234', '1234')).toEqual({ bulls: 4, cows: 0 });
     });
 
     it('должен правильно считать коров, если цифры перепутаны местами', () => {
-        expect(evaluteGuess('1234', '4321')).toEqual({ bulls: 0, cows: 4 });
+        expect(evaluateGuess('1234', '4321')).toEqual({ bulls: 0, cows: 4 });
     });
 
     it('должен корректно считать смешанные результаты и игнорировать регистр букв', () => {
-        expect(evaluteGuess('aB34', 'Ab43')).toEqual({ bulls: 1, cows: 3 });
+        expect(evaluateGuess('aB34', 'Ab43')).toEqual({ bulls: 2, cows: 2 });
     });
 });

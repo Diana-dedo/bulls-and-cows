@@ -23,5 +23,19 @@ export function evaluateGuess(
     secret: string,
     guess: string,
 ): { bulls: number; cows: number } {
-    throw new Error('Not implemented');
+    const s = secret.toLowerCase();
+    const g = guess.toLowerCase();
+
+    return g.split('').reduce(
+        (acc, char, index) => {
+            if (char === s[index]) {
+                acc.bulls += 1;
+            } else if (s.includes(char)) {
+                acc.cows += 1;
+            }
+
+            return acc;
+        },
+        { bulls: 0, cows: 0 },
+    );
 }
