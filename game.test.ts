@@ -5,7 +5,7 @@ import {
     evaluateGuess,
     generateSecret,
     countPossibleSecrets,
-} from './game';
+} from './game.js';
 
 describe('createDigitValidator', () => {
     it('должен валидировать двоичную систему (base 2)', () => {
