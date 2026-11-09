@@ -4,6 +4,7 @@ import {
     isValidGuess,
     evaluateGuess,
     generateSecret,
+    countPossibleSecrets,
 } from './game';
 
 describe('createDigitValidator', () => {
@@ -75,5 +76,15 @@ describe('generateSecret', () => {
         const fakeRandom = () => 0.1;
         const result = generateSecret(3, 10, fakeRandom);
         expect(typeof result).toBe('string');
+    });
+});
+
+describe('countPossibleSecrets', () => {
+    it('должен правильно считать количество вариантов для длины 1', () => {
+        expect(countPossibleSecrets(1, 10)).toBe(10);
+    });
+
+    it('должен правильно считать количество вариантов для длины 2', () => {
+        expect(countPossibleSecrets(2, 10)).toBe(90);
     });
 });

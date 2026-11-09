@@ -51,3 +51,7 @@ export function generateSecret(
     const resultSymbols = symbols.slice(0, length);
     return resultSymbols.join('');
 }
+
+export function countPossibleSecrets(length: number, base: number): number {
+    throw new Error('Not implemented');
+}
