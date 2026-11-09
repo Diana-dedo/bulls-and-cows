@@ -1,6 +1,5 @@
+import type { GameState, HistoryEntry } from './game.js';
 import {
-    GameState,
-    HistoryEntry,
     generateSecret,
     evaluateGuess,
     isValidGuess,
@@ -86,7 +85,7 @@ export function renderSetupScreen(): void {
             currentSettings.base,
         );
         gameHistory = [];
-        console.log('Секрет:', activeGameSecret);
+        console.log('Загаданное секретное число:', activeGameSecret);
         renderGameScreen();
     });
 
@@ -119,7 +118,7 @@ function renderGameScreen(): void {
     const isCharValid = createDigitValidator(currentSettings.base);
     guessInput.addEventListener('input', () => {
         const val = guessInput.value;
-        if (val.length > 0 && !isCharValid(val[val.length - 1])) {
+        if (val.length > 0 && !isCharValid(val.slice(-1))) {
             guessInput.value = val.slice(0, -1);
         }
     });

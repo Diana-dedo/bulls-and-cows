@@ -1,8 +1,10 @@
-import { GameState, HistoryEntry, generateSecret, evaluateGuess, isValidGuess, createDigitValidator, } from './game.js';
+import { generateSecret, evaluateGuess, isValidGuess, createDigitValidator } from './game.js';
 const currentSettings = {
     length: 4,
     base: 10,
 };
+let activeGameSecret = '';
+let gameHistory = [];
 export function renderSetupScreen() {
     const app = document.body;
     while (app.firstChild) {
@@ -51,9 +53,8 @@ export function renderSetupScreen() {
     updateLengthOptions(currentSettings.base);
     baseSelect.addEventListener('change', () => {
         currentSettings.base = Number(baseSelect.value);
-        if (currentSettings.base === 2) {
+        if (currentSettings.base === 2)
             currentSettings.length = 2;
-        }
         updateLengthOptions(currentSettings.base);
     });
     lengthSelect.addEventListener('change', () => {
@@ -63,6 +64,7 @@ export function renderSetupScreen() {
     startButton.textContent = 'Старт игры';
     startButton.addEventListener('click', () => {
         activeGameSecret = generateSecret(currentSettings.length, currentSettings.base);
+        gameHistory = [];
         console.log('Загаданное секретное число:', activeGameSecret);
         renderGameScreen();
     });
@@ -79,8 +81,55 @@ function renderGameScreen() {
         app.removeChild(app.firstChild);
     }
     const title = document.createElement('h2');
-    title.textContent = `Игра началась! База: ${currentSettings.base}, Длина: ${currentSettings.length}`;
+    title.textContent = `Угадайте число (длина: ${currentSettings.length}, база: ${currentSettings.base})`;
     app.appendChild(title);
+    const gameContainer = document.createElement('div');
+    gameContainer.className = 'game-container';
+    const guessInput = document.createElement('input');
+    guessInput.type = 'text';
+    guessInput.maxLength = currentSettings.length;
+    guessInput.placeholder = 'Ваш вариант';
+    const isCharValid = createDigitValidator(currentSettings.base);
+    guessInput.addEventListener('input', () => {
+        const val = guessInput.value;
+        if (val.length > 0 && !isCharValid(val.slice(-1))) {
+            guessInput.value = val.slice(0, -1);
+        }
+    });
+    const checkButton = document.createElement('button');
+    checkButton.textContent = 'Проверить';
+    const historyList = document.createElement('div');
+    historyList.className = 'history-list';
+    function updateHistoryUI() {
+        while (historyList.firstChild) {
+            historyList.removeChild(historyList.firstChild);
+        }
+        gameHistory.forEach((entry) => {
+            const item = document.createElement('div');
+            item.textContent = `Попытка: ${entry.guess} | Быки: ${entry.bulls}, Коровы: ${entry.cows}`;
+            historyList.appendChild(item);
+        });
+    }
+    checkButton.addEventListener('click', () => {
+        const currentGuess = guessInput.value;
+        if (!isValidGuess(currentGuess, currentSettings.length, currentSettings.base)) {
+            alert('Неверный формат ввода! Проверьте длину и уникальность цифр.');
+            return;
+        }
+        const result = evaluateGuess(activeGameSecret, currentGuess);
+        const newEntry = { guess: currentGuess, ...result };
+        gameHistory = [...gameHistory, newEntry];
+        updateHistoryUI();
+        guessInput.value = '';
+        if (result.bulls === currentSettings.length) {
+            alert('Поздравляем! Вы победили!');
+            renderSetupScreen();
+        }
+    });
+    gameContainer.appendChild(guessInput);
+    gameContainer.appendChild(checkButton);
+    gameContainer.appendChild(historyList);
+    app.appendChild(gameContainer);
 }
 renderSetupScreen();
 //# sourceMappingURL=ui.js.map
