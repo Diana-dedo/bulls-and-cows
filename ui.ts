@@ -12,9 +12,11 @@ const currentSettings = {
     base: 10,
 };
 
+let activeGameSecret = '';
+let gameHistory: HistoryEntry[] = [];
+
 export function renderSetupScreen(): void {
     const app = document.body;
-
     while (app.firstChild) {
         app.removeChild(app.firstChild);
     }
@@ -55,7 +57,6 @@ export function renderSetupScreen(): void {
         }
         for (let i = 2; i <= 6; i++) {
             if (selectedBase === 2 && i !== 2) continue;
-
             const option = document.createElement('option');
             option.value = String(i);
             option.textContent = String(i);
@@ -68,9 +69,7 @@ export function renderSetupScreen(): void {
 
     baseSelect.addEventListener('change', () => {
         currentSettings.base = Number(baseSelect.value);
-        if (currentSettings.base === 2) {
-            currentSettings.length = 2;
-        }
+        if (currentSettings.base === 2) currentSettings.length = 2;
         updateLengthOptions(currentSettings.base);
     });
 
@@ -86,7 +85,8 @@ export function renderSetupScreen(): void {
             currentSettings.length,
             currentSettings.base,
         );
-        console.log('Загаданное секретное число:', activeGameSecret);
+        gameHistory = [];
+        console.log('Секрет:', activeGameSecret);
         renderGameScreen();
     });
 
@@ -103,9 +103,78 @@ function renderGameScreen(): void {
     while (app.firstChild) {
         app.removeChild(app.firstChild);
     }
+
     const title = document.createElement('h2');
-    title.textContent = `Игра началась! База: ${currentSettings.base}, Длина: ${currentSettings.length}`;
+    title.textContent = `Угадайте число (длина: ${currentSettings.length}, база: ${currentSettings.base})`;
     app.appendChild(title);
+
+    const gameContainer = document.createElement('div');
+    gameContainer.className = 'game-container';
+
+    const guessInput = document.createElement('input');
+    guessInput.type = 'text';
+    guessInput.maxLength = currentSettings.length;
+    guessInput.placeholder = 'Ваш вариант';
+
+    const isCharValid = createDigitValidator(currentSettings.base);
+    guessInput.addEventListener('input', () => {
+        const val = guessInput.value;
+        if (val.length > 0 && !isCharValid(val[val.length - 1])) {
+            guessInput.value = val.slice(0, -1);
+        }
+    });
+
+    const checkButton = document.createElement('button');
+    checkButton.textContent = 'Проверить';
+
+    const historyList = document.createElement('div');
+    historyList.className = 'history-list';
+
+    function updateHistoryUI() {
+        while (historyList.firstChild) {
+            historyList.removeChild(historyList.firstChild);
+        }
+        gameHistory.forEach((entry) => {
+            const item = document.createElement('div');
+            item.textContent = `Попытка: ${entry.guess} | Быки: ${entry.bulls}, Коровы: ${entry.cows}`;
+            historyList.appendChild(item);
+        });
+    }
+
+    checkButton.addEventListener('click', () => {
+        const currentGuess = guessInput.value;
+
+        if (
+            !isValidGuess(
+                currentGuess,
+                currentSettings.length,
+                currentSettings.base,
+            )
+        ) {
+            alert(
+                'Неверный формат ввода! Проверьте длину и уникальность цифр.',
+            );
+            return;
+        }
+
+        const result = evaluateGuess(activeGameSecret, currentGuess);
+        const newEntry: HistoryEntry = { guess: currentGuess, ...result };
+
+        gameHistory = [...gameHistory, newEntry];
+
+        updateHistoryUI();
+        guessInput.value = '';
+
+        if (result.bulls === currentSettings.length) {
+            alert('Поздравляем! Вы победили!');
+            renderSetupScreen();
+        }
+    });
+
+    gameContainer.appendChild(guessInput);
+    gameContainer.appendChild(checkButton);
+    gameContainer.appendChild(historyList);
+    app.appendChild(gameContainer);
 }
 
 renderSetupScreen();
