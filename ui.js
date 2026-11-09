@@ -140,6 +140,7 @@ function renderGameScreen() {
     const isCharValid = createDigitValidator(currentSettings.base);
     guessInput.addEventListener('input', () => {
         const val = guessInput.value;
+        const lastChar = val.charAt(val.length - 1);
         if (val.length > 0 && !isCharValid(val.slice(-1))) {
             guessInput.value = val.slice(0, -1);
         }
